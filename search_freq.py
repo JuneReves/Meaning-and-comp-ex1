@@ -1,6 +1,5 @@
 import re
 
-
 def organizeData():
     with open('corpus_ex1.freq_list', 'r') as f:
         lst = [line.replace('\n', '').split('\t') for
