@@ -4,13 +4,15 @@ import random
 from collections import Counter
 
 # Choose words
-WORD = {'PLANT'}
-seed1 = {'LIFE', 'LIVES'}
-seed2 = {'MANUFACTURE', 'MANUFACTURING', 'MANUFACTURED'}
+WORD = {'ORANGE', 'ORANGES'}
+seed1 = {'COLOUR', 'COLOR'}
+seed2 = {'FOOD'}
 SEARCH_WINDOW = 4
-THRESHOLD_SCORE = 0.7
-THRESHOLD_FREQ = 5
+THRESHOLD_SCORE = 0.5
+THRESHOLD_FREQ = 3
 TRAINING_SET_SIZE = 200
+A = []
+B = []
 
 # Read corpus
 ignore = {'\'', '"', '.', ',', '/', '\\', '(', ')',';'}
@@ -41,6 +43,7 @@ def tagColloc(sampSet, seedA, seedB, A, B):
             A.append(cur)
         elif seedB & st:
             B.append(cur)
+        sampSet.remove(s)
 
 def findingSeeds(tagged, notSeeds):
     potentialSeeds = dict()
@@ -58,31 +61,58 @@ def findingSeeds(tagged, notSeeds):
 
 
 
-def yarovskyAlgo(word, seedA, seedB, sampleSet):
-    A = []
-    B = []
+def yarovskyAlgo(seedA, seedB, sampleSet,freqThresh, rankThrash, A, B, i=5):
     ranking = dict()
     notSeeds = set()
     tagColloc(sampleSet, seedA, seedB, A, B)
-    potentialSeedsA = findingSeeds(A, notSeeds)
-    potentialSeedsB = findingSeeds(B, notSeeds)
+    found = notSeeds | seedA | seedB
+    potentialSeedsA = findingSeeds(A, found)
+    potentialSeedsB = findingSeeds(B, found)
     candidates = set(potentialSeedsB.keys()) | set(potentialSeedsA.keys())
     for w in candidates:
-        print(w)
         try:
             freqA = potentialSeedsA[w]
         except:
-            ranking[w] = '+'
+            ranking[w] = -999999
             continue
         try:
             freqB = potentialSeedsB[w]
         except:
-            ranking[w] = '-'
+            ranking[w] = 999999
             continue
         probA = freqA/(freqB+freqA)
         probB =  freqB/(freqA+freqB)
         ranking[w] = m.log(probA/probB)
-    return ranking
 
-print(yarovskyAlgo(WORD, seed1, seed2, reducesSentences))
+        for w in ranking:
+            freq = 0
+            try:
+                freq += potentialSeedsA[w]
+            except:
+                print(w, 1)
+            try:
+                freq += potentialSeedsB[w]
+            except:
+                print(w, 2)
+            if freq < freqThresh:
+                notSeeds.add(w)
+                continue
+            if ranking[w] < -rankThrash:
+                seedB.add(w)
+                continue
+            if ranking[w] > rankThrash:
+                seedA.add(w)
+                continue
+            notSeeds.add(w)
+        if i == 0 or len(sampleSet) == 0:
+            return
+        yarovskyAlgo(seedA, seedB, sampleSet, freqThresh, rankThrash,A,B, i-1)
+
+yarovskyAlgo(seed1, seed2, reducesSentences, THRESHOLD_FREQ,
+             THRESHOLD_SCORE,A,B, 100)
+
+print(seed1)
+print(A)
+print(seed2)
+print(B)
 
