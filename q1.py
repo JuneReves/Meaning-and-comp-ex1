@@ -4,11 +4,11 @@ import random
 from collections import Counter
 
 # Choose words
-WORD = {'ORANGE', 'ORANGES'}
-seed1 = {'COLOUR', 'COLOR'}
-seed2 = {'FOOD'}
-SEARCH_WINDOW = 4
-THRESHOLD_SCORE = 0.5
+WORD = {'PLANT'}
+seed1 = {'LIFE', 'LIVES'}
+seed2 = {'MANUFACTURE', 'MANUFACTURES', 'MANUFACTURED', 'MANUFACTURING'}
+SEARCH_WINDOW = 3
+THRESHOLD_SCORE = 0.7
 THRESHOLD_FREQ = 3
 TRAINING_SET_SIZE = 200
 A = []
@@ -21,28 +21,43 @@ corp = readCorpus('corpus_ex1')
 corp = extractSentences('<s>', '</s>' ,corp, ignore)
 
 # Find basic collocations
-reducesSentences = []
+sentences = []
 for sentence in corp:
     for w in WORD:
         if w in sentence:
-            indices = [index for index, value in enumerate(sentence) if
-                        value == w]
-            for i in indices:
-                s = max(i-SEARCH_WINDOW,0)
-                e = min(i+SEARCH_WINDOW, len(sentence))
-                cur = sentence[s:e]
-                reducesSentences.append(cur)
-
-trainingSet = random.sample(reducesSentences, TRAINING_SET_SIZE)
+            if w in sentence:
+                sentences.append(sentence)
+            # indices = [index for index, value in enumerate(sentence) if
+            #             value == w]
+            # for i in indices:
+            #     s = max(i-SEARCH_WINDOW,0)
+            #     e = min(i+SEARCH_WINDOW, len(sentence))
+            #     cur = sentence[s:e]
+            #     reducesSentences.append(cur)
+try:
+    trainingSet = random.sample(sentences, TRAINING_SET_SIZE)
+except:
+    trainingSet = sentences
 
 def tagColloc(sampSet, seedA, seedB, A, B):
     for s in sampSet:
-        cur = s
-        st = set(s)
-        if seedA & st:
-            A.append(cur)
-        elif seedB & st:
-            B.append(cur)
+        indices = [index for index, value in enumerate(s) if
+                   (value in seedA or value in seedB)]
+        for i in indices:
+            sta = max(i - SEARCH_WINDOW, 0)
+            e = min(i + SEARCH_WINDOW, len(s))
+            cur = s[sta:e]
+            print(cur)
+            st = set(cur)
+            print(st)
+            if seedA & st:
+                A.append(s[max(i - 3*SEARCH_WINDOW, 0):min(i +
+                                                           3*SEARCH_WINDOW,
+                                                           len(s))])
+            elif seedB & st:
+                B.append(s[max(i - 3*SEARCH_WINDOW, 0):min(i +
+                                                           3*SEARCH_WINDOW,
+                                                           len(s))])
         sampSet.remove(s)
 
 def findingSeeds(tagged, notSeeds):
@@ -108,11 +123,19 @@ def yarovskyAlgo(seedA, seedB, sampleSet,freqThresh, rankThrash, A, B, i=5):
             return
         yarovskyAlgo(seedA, seedB, sampleSet, freqThresh, rankThrash,A,B, i-1)
 
-yarovskyAlgo(seed1, seed2, reducesSentences, THRESHOLD_FREQ,
+yarovskyAlgo(seed1, seed2, sentences, THRESHOLD_FREQ,
              THRESHOLD_SCORE,A,B, 100)
 
-print(seed1)
-print(A)
-print(seed2)
-print(B)
 
+def printSentences(a, lst):
+    for l in lst:
+        print(a, ':\t', end='')
+        for w in l:
+            print(w, end=' ')
+        print()
+
+print(seed1)
+print(seed2)
+
+printSentences('A',A)
+printSentences('B',B)
