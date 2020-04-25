@@ -4,12 +4,12 @@ import random
 from collections import Counter
 
 # Choose words
-WORD = {'POPULATION', 'POPULATIONS'}
-seed1 = {'PEOPLE'}
-seed2 = {'BACTERIA', 'BACTERIAL'}
+WORD = {'PLANT'}
+seed1 = {'LIFE', 'LIVES'}
+seed2 = {'MANUFACTURE', 'MANUFACTURES', 'MANUFACTURED', 'MANUFACTURING'}
 SEARCH_WINDOW = 2
-THRESHOLD_SCORE = 0.3
-THRESHOLD_FREQ = 2
+THRESHOLD_SCORE = 0.7
+THRESHOLD_FREQ = 3
 TRAINING_SET_SIZE = 200
 A = []
 B = []
@@ -24,15 +24,7 @@ sentences = []
 for sentence in corp:
     for w in WORD:
         if w in sentence:
-            if w in sentence:
-                sentences.append(sentence)
-            # indices = [index for index, value in enumerate(sentence) if
-            #             value == w]
-            # for i in indices:
-            #     s = max(i-SEARCH_WINDOW,0)
-            #     e = min(i+SEARCH_WINDOW, len(sentence))
-            #     cur = sentence[s:e]
-            #     reducesSentences.append(cur)
+            sentences.append(sentence)
 try:
     trainingSet = random.sample(sentences, TRAINING_SET_SIZE)
 except:
@@ -156,7 +148,7 @@ total_B = []
 
 for sentence in sentences:
     indices = [index for index, value in enumerate(sentence) if
-               (value in seed1 or value in seed2)]
+               (value in WORD)]
     for i in indices:
         cur = sentence[max(i-SEARCH_WINDOW, 0):min(i+SEARCH_WINDOW,
                                                    len(sentence))]
