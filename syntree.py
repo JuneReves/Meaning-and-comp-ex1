@@ -1,9 +1,9 @@
 from nltk.corpus import wordnet as wn
-import search_freq
+import corpusMethods
 import math
 
-d = search_freq.organizeData()
-N = search_freq.sumFreqs()
+d = corpusMethods.organizeData()
+N = corpusMethods.sumFreqs()
 
 class Node:
     __cumulativeFreq = None
@@ -11,8 +11,8 @@ class Node:
     def __findFreq(self, syn):
         w = 0
         for word in syn.lemma_names():
-            if search_freq.searchWordFreq(word, d) is not None:
-                w += search_freq.searchWordFreq(word, d)
+            if corpusMethods.searchWordFreq(word, d) is not None:
+                w += corpusMethods.searchWordFreq(word, d)
         return w
 
     def __init__(self, syn, parent, children):
