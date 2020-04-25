@@ -4,12 +4,12 @@ import random
 from collections import Counter
 
 # Choose words
-WORD = {'PLANT'}
-seed1 = {'LIFE', 'LIVES'}
-seed2 = {'MANUFACTURE', 'MANUFACTURES', 'MANUFACTURED', 'MANUFACTURING'}
-SEARCH_WINDOW = 3
-THRESHOLD_SCORE = 0.7
-THRESHOLD_FREQ = 3
+WORD = {'POPULATION', 'POPULATIONS'}
+seed1 = {'PEOPLE'}
+seed2 = {'BACTERIA', 'BACTERIAL'}
+SEARCH_WINDOW = 2
+THRESHOLD_SCORE = 0.3
+THRESHOLD_FREQ = 2
 TRAINING_SET_SIZE = 200
 A = []
 B = []
@@ -19,7 +19,6 @@ ignore = {'\'', '"', '.', ',', '/', '\\', '(', ')',';'}
 
 corp = readCorpus('corpus_ex1')
 corp = extractSentences('<s>', '</s>' ,corp, ignore)
-
 # Find basic collocations
 sentences = []
 for sentence in corp:
@@ -37,9 +36,20 @@ for sentence in corp:
 try:
     trainingSet = random.sample(sentences, TRAINING_SET_SIZE)
 except:
-    trainingSet = sentences
+    trainingSet = sentences.copy()
 
-def tagColloc(sampSet, seedA, seedB, A, B):
+
+with open('trainingSet', 'w') as file:
+    for l in trainingSet:
+        line = ''
+        for w in l:
+            line += w
+            line += ' '
+        line += '\n'
+        file.write(line)
+
+
+def tagColloc(sampSet, seedA, seedB, A, B, a):
     for s in sampSet:
         indices = [index for index, value in enumerate(s) if
                    (value in seedA or value in seedB)]
@@ -47,16 +57,14 @@ def tagColloc(sampSet, seedA, seedB, A, B):
             sta = max(i - SEARCH_WINDOW, 0)
             e = min(i + SEARCH_WINDOW, len(s))
             cur = s[sta:e]
-            print(cur)
             st = set(cur)
-            print(st)
             if seedA & st:
                 A.append(s[max(i - 3*SEARCH_WINDOW, 0):min(i +
-                                                           3*SEARCH_WINDOW,
+                                                           a*SEARCH_WINDOW,
                                                            len(s))])
             elif seedB & st:
                 B.append(s[max(i - 3*SEARCH_WINDOW, 0):min(i +
-                                                           3*SEARCH_WINDOW,
+                                                           a*SEARCH_WINDOW,
                                                            len(s))])
         sampSet.remove(s)
 
@@ -75,11 +83,12 @@ def findingSeeds(tagged, notSeeds):
 
 
 
-
+allSeedsA = dict()
+allSeedsB = dict()
+ranking = dict()
 def yarovskyAlgo(seedA, seedB, sampleSet,freqThresh, rankThrash, A, B, i=5):
-    ranking = dict()
     notSeeds = set()
-    tagColloc(sampleSet, seedA, seedB, A, B)
+    tagColloc(sampleSet, seedA, seedB, A, B, 3)
     found = notSeeds | seedA | seedB
     potentialSeedsA = findingSeeds(A, found)
     potentialSeedsB = findingSeeds(B, found)
@@ -104,11 +113,11 @@ def yarovskyAlgo(seedA, seedB, sampleSet,freqThresh, rankThrash, A, B, i=5):
             try:
                 freq += potentialSeedsA[w]
             except:
-                print(w, 1)
+                pass
             try:
                 freq += potentialSeedsB[w]
             except:
-                print(w, 2)
+                pass
             if freq < freqThresh:
                 notSeeds.add(w)
                 continue
@@ -123,19 +132,45 @@ def yarovskyAlgo(seedA, seedB, sampleSet,freqThresh, rankThrash, A, B, i=5):
             return
         yarovskyAlgo(seedA, seedB, sampleSet, freqThresh, rankThrash,A,B, i-1)
 
-yarovskyAlgo(seed1, seed2, sentences, THRESHOLD_FREQ,
+yarovskyAlgo(seed1, seed2, trainingSet, THRESHOLD_FREQ,
              THRESHOLD_SCORE,A,B, 100)
 
 
 def printSentences(a, lst):
+    lines = []
     for l in lst:
-        print(a, ':\t', end='')
+        line = a + ':\t'
         for w in l:
-            print(w, end=' ')
-        print()
+            line += w + ' '
+        lines += '\n'
+        lines.append(line)
+    return lines
 
 print(seed1)
 print(seed2)
+print(ranking)
 
-printSentences('A',A)
-printSentences('B',B)
+total_A = []
+total_B = []
+
+
+for sentence in sentences:
+    indices = [index for index, value in enumerate(sentence) if
+               (value in seed1 or value in seed2)]
+    for i in indices:
+        cur = sentence[max(i-SEARCH_WINDOW, 0):min(i+SEARCH_WINDOW,
+                                                   len(sentence))]
+        if set(cur) & seed1:
+            total_A.append(cur)
+        elif set(cur) & seed2:
+            total_B.append(cur)
+
+toPrint = []
+
+toPrint += printSentences('A',total_A)
+toPrint += printSentences('B',total_B)
+
+
+with open('q1Sentences', 'w') as file:
+    for l in toPrint:
+        file.write(l)
