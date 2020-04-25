@@ -4,9 +4,10 @@ import random
 from collections import Counter
 
 # Choose words
-WORD = {'PLANT'}
-seed1 = {'LIFE', 'LIVES'}
-seed2 = {'MANUFACTURE', 'MANUFACTURES', 'MANUFACTURED', 'MANUFACTURING'}
+WORD = {'TRAIN', 'TRAINS', 'TRAINED','TRAINING'}
+seed1 = {'STATION', 'STATIONS', 'RAILS', 'RAIL', 'DESTINATION', 'WAGON',
+         'WAGONS'}
+seed2 = {'MUSCLES', 'MUSCLE', 'WEIGHT', 'WEIGHTS', 'SPORT', 'SPORTS'}
 SEARCH_WINDOW = 2
 A = []
 B = []

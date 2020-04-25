@@ -4,13 +4,13 @@ import random
 from collections import Counter
 
 # Choose words
-WORD = {'PLANT'}
-seed1 = {'LIFE', 'LIVES'}
-seed2 = {'MANUFACTURE', 'MANUFACTURES', 'MANUFACTURED', 'MANUFACTURING'}
+WORD = {'TRAIN', 'TRAINS', 'TRAINED','TRAINING'}
+seed1 = {'STATION', 'STATIONS'}
+seed2 = {'WEIGHT', 'WEIGHTS'}
 SEARCH_WINDOW = 2
 THRESHOLD_SCORE = 0.7
-THRESHOLD_FREQ = 3
-TRAINING_SET_SIZE = 200
+THRESHOLD_FREQ = 2
+TRAINING_SET_SIZE = 500
 A = []
 B = []
 
